@@ -1,0 +1,30 @@
+{
+  "name": "hash-route",
+  "version": "0.1.0",
+  "description": "A router based on hash string.",
+  "main": "dist/hash-route.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "karma start karma.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kt3k/hash-route.git"
+  },
+  "keywords": [
+    "hash",
+    "hashchange",
+    "onhashchange",
+    "routing",
+    "route",
+    "router"
+  ],
+  "author": "Yoshiya Hinosawa <stibium121@gmail.com> (https://twitter.com/kt3k)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kt3k/hash-route/issues"
+  },
+  "homepage": "https://github.com/kt3k/hash-route#readme"
+}
