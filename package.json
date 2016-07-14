@@ -10,6 +10,7 @@
     "test": "karma start karma.conf.js",
     "codecov": "codecov",
     "dist": "browserify -t babelify src/index.js > dist/hash-route.js",
+    "dist-min": "uglifyjs dist/hash-route.js --mangle --compress > dist/hash-route.min.js",
     "prepublish": "npm run dist"
   },
   "repository": {
@@ -43,9 +44,15 @@
     "karma-coverage": "^1.1.0",
     "karma-mocha": "^1.1.1",
     "mocha": "^2.5.3",
+    "uglify-js": "^2.7.0",
     "watchify": "^3.7.0"
   },
   "dependencies": {
     "path-to-regexp": "^1.5.3"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   }
 }
