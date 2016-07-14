@@ -4,7 +4,10 @@
 # coverage
 /coverage
 
-# dist
+# src
 /dist
 /test
 /src
+/karma.conf.js
+/circle.js
+.bmp.yml
