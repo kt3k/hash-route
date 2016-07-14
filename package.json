@@ -2,16 +2,17 @@
   "name": "hash-route",
   "version": "1.0.1",
   "description": "A router based on hash string.",
-  "main": "dist/hash-route.js",
+  "main": "lib/index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "karma start karma.conf.js",
     "codecov": "codecov",
+    "lib": "",
     "dist": "browserify -t babelify src/index.js > dist/hash-route.js",
     "dist-min": "uglifyjs dist/hash-route.js --mangle --compress > dist/hash-route.min.js",
-    "prepublish": "npm run dist"
+    "prepublish": "npm run dist && npm run dist-min $$ npm run lib"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
   },
   "homepage": "https://github.com/kt3k/hash-route#readme",
   "devDependencies": {
+    "babel-cli": "^6.10.1",
     "babel-plugin-istanbul": "^1.0.3",
     "babel-preset-es2015": "^6.9.0",
     "babelify": "^7.3.0",
