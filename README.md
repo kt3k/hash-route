@@ -5,7 +5,7 @@
 # Usage
 
 ```js
-const route = require('hash-route')
+const {route, dispatch} = require('hash-route')
 
 class Router {
   constructor () {
@@ -13,7 +13,7 @@ class Router {
   }
 
   onHashchange () {
-    route(this)
+    dispatch(this)
   }
 
   @route('#') root {
