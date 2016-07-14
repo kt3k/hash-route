@@ -432,13 +432,19 @@ module.exports = Array.isArray || function (arr) {
 };
 
 },{}],3:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  * Returns the object from the given array which sutisfies the given predicate first.
  * @param {object[]} array The array to test
  * @param {Function} predicate The predicate
  */
-const first = (array, predicate) => {
-  for (let i = 0; i < array.length; i++) {
+var _first = function _first(array, predicate) {
+  for (var i = 0; i < array.length; i++) {
     if (predicate(array[i])) {
       return array[i];
     }
@@ -448,119 +454,166 @@ const first = (array, predicate) => {
 /**
  * The collection model of HashRoutes.
  */
-class HashRouteCollection {
-  constructor() {
+
+var HashRouteCollection = function () {
+  function HashRouteCollection() {
+    _classCallCheck(this, HashRouteCollection);
+
     this.routes = [];
   }
 
   /**
    * @param {HashRoute}
    */
-  add(route) {
-    this.routes.push(route);
-  }
 
-  /**
-   * @param {object} obj The object
-   * @param {string} path The path
-   */
-  dispatch(obj, path) {
-    const route = this.first(path);
 
-    if (route == null) {
-      return;
+  _createClass(HashRouteCollection, [{
+    key: "add",
+    value: function add(route) {
+      this.routes.push(route);
     }
 
-    route.dispatch(obj, path);
-  }
+    /**
+     * @param {object} obj The object
+     * @param {string} path The path
+     */
 
-  first(path) {
-    return first(this.routes, route => route.test(path));
-  }
-}
+  }, {
+    key: "dispatch",
+    value: function dispatch(obj, path) {
+      var route = this.first(path);
+
+      if (route == null) {
+        return;
+      }
+
+      route.dispatch(obj, path);
+    }
+  }, {
+    key: "first",
+    value: function first(path) {
+      return _first(this.routes, function (route) {
+        return route.test(path);
+      });
+    }
+  }]);
+
+  return HashRouteCollection;
+}();
 
 module.exports = HashRouteCollection;
 
 },{}],4:[function(require,module,exports){
-const pathToRegexp = require('path-to-regexp');
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var pathToRegexp = require('path-to-regexp');
 
 /**
  * The route model.
  */
-class HashRoute {
+
+var HashRoute = function () {
   /**
    * @param {string} pattern The pattern string
    * @param {RegExp} re The regexp
    * @param {object[]} keys The key informations
    * @param {Function} method The method
    */
-  constructor({ pattern, re, keys, method }) {
+
+  function HashRoute(_ref) {
+    var pattern = _ref.pattern;
+    var re = _ref.re;
+    var keys = _ref.keys;
+    var method = _ref.method;
+
+    _classCallCheck(this, HashRoute);
+
     this.pattern = pattern;
     this.re = re;
     this.keys = keys;
     this.method = method;
   }
 
-  static createFromPatternAndMethod(pattern, method) {
-    const keys = [];
-    const re = pathToRegexp(pattern, keys);
+  _createClass(HashRoute, [{
+    key: 'match',
 
-    return new HashRoute({ pattern, re, keys, method });
-  }
 
-  /**
-   * Returns the params object if the path matches the pattern and returns null otherwise.
-   * @param {string} path The path to test
-   * @return {object}
-   */
-  match(path) {
-    const result = {};
+    /**
+     * Returns the params object if the path matches the pattern and returns null otherwise.
+     * @param {string} path The path to test
+     * @return {object}
+     */
+    value: function match(path) {
+      var result = {};
 
-    const match = path.match(this.re);
+      var match = path.match(this.re);
 
-    if (match == null) {
-      return null;
+      if (match == null) {
+        return null;
+      }
+
+      this.keys.forEach(function (keyInfo, i) {
+        result[keyInfo.name] = match[i + 1];
+      });
+
+      return result;
     }
 
-    this.keys.forEach((keyInfo, i) => {
-      result[keyInfo.name] = match[i + 1];
-    });
+    /**
+     * Tests if the path matches the route pattern.
+     * @param {string} path The path
+     * @return {boolean}
+     */
 
-    return result;
-  }
+  }, {
+    key: 'test',
+    value: function test(path) {
+      return this.re.test(path);
+    }
 
-  /**
-   * Tests if the path matches the route pattern.
-   * @param {string} path The path
-   * @return {boolean}
-   */
-  test(path) {
-    return this.re.test(path);
-  }
+    /**
+     * Dispatches the route with the given path.
+     * @param {string} path The path
+     */
 
-  /**
-   * Dispatches the route with the given path.
-   * @param {string} path The path
-   */
-  dispatch(obj, path) {
-    const params = this.match(path);
+  }, {
+    key: 'dispatch',
+    value: function dispatch(obj, path) {
+      var params = this.match(path);
 
-    return this.method.call(obj, params, path, this);
-  }
-}
+      return this.method.call(obj, params, path, this);
+    }
+  }], [{
+    key: 'createFromPatternAndMethod',
+    value: function createFromPatternAndMethod(pattern, method) {
+      var keys = [];
+      var re = pathToRegexp(pattern, keys);
+
+      return new HashRoute({ pattern: pattern, re: re, keys: keys, method: method });
+    }
+  }]);
+
+  return HashRoute;
+}();
 
 module.exports = HashRoute;
 
 },{"path-to-regexp":1}],5:[function(require,module,exports){
-const HashRoute = require('./hash-route');
-const HashRouteCollection = require('./hash-route-collection');
+'use strict';
 
-let routes;
+var HashRoute = require('./hash-route');
+var HashRouteCollection = require('./hash-route-collection');
+
+var routes = void 0;
 
 /**
  * Resets the route info.
  */
-exports.reset = () => {
+exports.reset = function () {
   routes = new HashRouteCollection();
 };
 
@@ -572,15 +625,17 @@ exports.reset();
  * @param {string} key The key name
  * @param {object} descriptor The descriptor
  */
-exports.route = pattern => (target, key, descriptor) => {
-  routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value));
+exports.route = function (pattern) {
+  return function (target, key, descriptor) {
+    routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value));
+  };
 };
 
 /**
  * Dispatches the route.
  * @param {object} obj The router methods host
  */
-exports.dispatch = (obj, path) => {
+exports.dispatch = function (obj, path) {
   path = path || location.hash;
 
   routes.dispatch(obj, path);
