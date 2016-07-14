@@ -1,6 +1,6 @@
 {
   "name": "hash-route",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A router based on hash string.",
   "main": "lib/index.js",
   "directories": {
@@ -9,10 +9,10 @@
   "scripts": {
     "test": "karma start karma.conf.js",
     "codecov": "codecov",
-    "lib": "",
+    "lib": "babel src/ -d lib/",
     "dist": "browserify -t babelify src/index.js > dist/hash-route.js",
     "dist-min": "uglifyjs dist/hash-route.js --mangle --compress > dist/hash-route.min.js",
-    "prepublish": "npm run dist && npm run dist-min $$ npm run lib"
+    "prepublish": "npm run dist && npm run dist-min && npm run lib"
   },
   "repository": {
     "type": "git",
