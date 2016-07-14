@@ -1,4 +1,4 @@
-# hash-route v0.1.0
+# hash-route v1.0.0
 
 > Router based on hash string.
 

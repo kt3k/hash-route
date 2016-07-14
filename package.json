@@ -1,6 +1,6 @@
 {
   "name": "hash-route",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A router based on hash string.",
   "main": "dist/hash-route.js",
   "directories": {
