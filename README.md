@@ -42,6 +42,12 @@ class Router {
 
 That's it!
 
+The express style patterns are available as route paths. This library uses [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) under the hood. See [its document](https://www.npmjs.com/package/path-to-regexp) for available patterns.
+
+# Install
+
+    npm install hash-route
+
 # License
 
 MIT
