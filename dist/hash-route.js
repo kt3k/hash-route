@@ -605,6 +605,8 @@ module.exports = HashRoute;
 },{"path-to-regexp":1}],5:[function(require,module,exports){
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var HashRoute = require('./hash-route');
 var HashRouteCollection = require('./hash-route-collection');
 
@@ -625,10 +627,26 @@ exports.reset();
  * @param {string} key The key name
  * @param {object} descriptor The descriptor
  */
-exports.route = function (pattern) {
-  return function (target, key, descriptor) {
-    routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value));
-  };
+exports.route = function (target, key, descriptor) {
+  if (typeof target === 'string') {
+    var _ret = function () {
+      // This is @route(routePattern) usage
+      // So the first argument is the pattern string.
+      var pattern = target;
+
+      return {
+        v: function v(target, key, descriptor) {
+          routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value));
+        }
+      };
+    }();
+
+    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+  }
+
+  // This is @route methodName() {} usage
+  // Uses the key as the route pattern
+  routes.add(HashRoute.createFromPatternAndMethod(key, descriptor.value));
 };
 
 /**
