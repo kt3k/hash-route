@@ -7,7 +7,7 @@ describe('route', () => {
     reset()
   })
 
-  it('registers the route pattern', done => {
+  it('registers the route pattern of the given string', done => {
     class Foo {
       page (param) {
         expect(param.bar).to.equal('ham')
@@ -25,11 +25,25 @@ describe('route', () => {
 
     dispatch(new Foo(), 'foo/ham')
   })
+
+  it('registers the route pattern of the method name if the argument is not given', done => {
+    class Foo {
+      'foo/:bar' (param) {
+        expect(param.bar).to.equal('ham')
+
+        done()
+      }
+    }
+
+    route(Foo.prototype, 'foo/:bar', Object.getOwnPropertyDescriptor(Foo.prototype, 'foo/:bar'))
+
+    dispatch(new Foo(), 'foo/ham')
+  })
 })
 
 describe('dispatch', () => {
   it('dispatches routes with current hash if the second param is omitted', done => {
-    location = '#foo'
+    location.href = '#foo'
 
     class Foo {
       foo () {
@@ -41,5 +55,3 @@ describe('dispatch', () => {
     dispatch(new Foo())
   })
 })
-
-describe

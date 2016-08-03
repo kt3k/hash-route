@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/kt3k/hash-route.svg?style=svg)](https://circleci.com/gh/kt3k/hash-route)
 [![codecov](https://codecov.io/gh/kt3k/hash-route/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/hash-route)
 
-> Router based on hash string.
+> A router tool based on hash string.
 
 # Usage
 
@@ -19,19 +19,19 @@ class Router {
     dispatch(this)
   }
 
-  @route('#') root {
+  @route '#' () {
     location.replace('#projects')
   }
 
-  @route('#projects') projects () {
+  @route '#projects' () {
     showAllProjectPage()
   }
 
-  @route('#projects/:project') singleProject (params) {
+  @route '#projects/:project' (params) {
     showProjectPage(params.project)
   }
 
-  @route('*') notFound {
+  @route '*' () {
     showNotFoundPage()
   }
 

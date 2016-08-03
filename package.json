@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "lint": "standard",
     "test": "karma start karma.conf.js",
     "codecov": "codecov",
     "lib": "babel src/ -d lib/",
@@ -46,6 +47,7 @@
     "karma-coverage": "^1.1.0",
     "karma-mocha": "^1.1.1",
     "mocha": "^2.5.3",
+    "standard": "^7.1.2",
     "uglify-js": "^2.7.0",
     "watchify": "^3.7.0"
   },
@@ -55,6 +57,15 @@
   "babel": {
     "presets": [
       "es2015"
+    ]
+  },
+  "standard": {
+    "env": [
+      "browser",
+      "mocha"
+    ],
+    "ignore": [
+      "dist"
     ]
   }
 }

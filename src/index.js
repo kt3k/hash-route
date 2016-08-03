@@ -18,8 +18,20 @@ exports.reset()
  * @param {string} key The key name
  * @param {object} descriptor The descriptor
  */
-exports.route = pattern => (target, key, descriptor) => {
-  routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value))
+exports.route = (target, key, descriptor) => {
+  if (typeof target === 'string') {
+    // This is @route(routePattern) usage
+    // So the first argument is the pattern string.
+    const pattern = target
+
+    return (target, key, descriptor) => {
+      routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value))
+    }
+  }
+
+  // This is @route methodName() {} usage
+  // Uses the key as the route pattern
+  routes.add(HashRoute.createFromPatternAndMethod(key, descriptor.value))
 }
 
 /**
