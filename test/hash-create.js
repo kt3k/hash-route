@@ -5,7 +5,7 @@ const {expect} = require('chai')
 describe('HashRoute', () => {
   describe('match', () => {
     it('returns', () => {
-      const route = HashRoute.createFromPatternAndMethod('/foo/bar', () => {})
+      const route = HashRoute.createFromPatternAndProperty('/foo/bar', 'foo')
 
       expect(route.match('/bar/foo')).to.be.null
     })
