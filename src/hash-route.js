@@ -8,20 +8,24 @@ class HashRoute {
    * @param {string} pattern The pattern string
    * @param {RegExp} re The regexp
    * @param {object[]} keys The key informations
-   * @param {Function} method The method
    */
-  constructor ({pattern, re, keys, method}) {
+  constructor ({pattern, re, keys, property}) {
     this.pattern = pattern
     this.re = re
     this.keys = keys
-    this.method = method
+    this.property = property
   }
 
-  static createFromPatternAndMethod (pattern, method) {
+  /**
+   * Creates the hash route object from the given pattern and property name.
+   * @param {string} pattern The route pattern
+   * @param {string} property The property name
+   */
+  static createFromPatternAndProperty (pattern, property) {
     const keys = []
     const re = pathToRegexp(pattern, keys)
 
-    return new HashRoute({pattern, re, keys, method})
+    return new HashRoute({pattern, re, keys, property})
   }
 
   /**
@@ -61,7 +65,7 @@ class HashRoute {
   dispatch (obj, path) {
     const params = this.match(path)
 
-    return this.method.call(obj, params, path, this)
+    return obj[this.property](params, path, this)
   }
 }
 

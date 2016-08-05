@@ -25,13 +25,13 @@ exports.route = (target, key, descriptor) => {
     const pattern = target
 
     return (target, key, descriptor) => {
-      routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value))
+      routes.add(HashRoute.createFromPatternAndProperty(pattern, key))
     }
   }
 
   // This is @route methodName() {} usage
   // Uses the key as the route pattern
-  routes.add(HashRoute.createFromPatternAndMethod(key, descriptor.value))
+  routes.add(HashRoute.createFromPatternAndProperty(key, key))
 }
 
 /**
