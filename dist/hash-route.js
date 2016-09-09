@@ -521,22 +521,28 @@ var HashRoute = function () {
    * @param {string} pattern The pattern string
    * @param {RegExp} re The regexp
    * @param {object[]} keys The key informations
-   * @param {Function} method The method
    */
 
   function HashRoute(_ref) {
     var pattern = _ref.pattern;
     var re = _ref.re;
     var keys = _ref.keys;
-    var method = _ref.method;
+    var property = _ref.property;
 
     _classCallCheck(this, HashRoute);
 
     this.pattern = pattern;
     this.re = re;
     this.keys = keys;
-    this.method = method;
+    this.property = property;
   }
+
+  /**
+   * Creates the hash route object from the given pattern and property name.
+   * @param {string} pattern The route pattern
+   * @param {string} property The property name
+   */
+
 
   _createClass(HashRoute, [{
     key: 'match',
@@ -585,15 +591,15 @@ var HashRoute = function () {
     value: function dispatch(obj, path) {
       var params = this.match(path);
 
-      return this.method.call(obj, params, path, this);
+      return obj[this.property](params, path, this);
     }
   }], [{
-    key: 'createFromPatternAndMethod',
-    value: function createFromPatternAndMethod(pattern, method) {
+    key: 'createFromPatternAndProperty',
+    value: function createFromPatternAndProperty(pattern, property) {
       var keys = [];
       var re = pathToRegexp(pattern, keys);
 
-      return new HashRoute({ pattern: pattern, re: re, keys: keys, method: method });
+      return new HashRoute({ pattern: pattern, re: re, keys: keys, property: property });
     }
   }]);
 
@@ -636,7 +642,7 @@ exports.route = function (target, key, descriptor) {
 
       return {
         v: function v(target, key, descriptor) {
-          routes.add(HashRoute.createFromPatternAndMethod(pattern, descriptor.value));
+          routes.add(HashRoute.createFromPatternAndProperty(pattern, key));
         }
       };
     }();
@@ -646,7 +652,7 @@ exports.route = function (target, key, descriptor) {
 
   // This is @route methodName() {} usage
   // Uses the key as the route pattern
-  routes.add(HashRoute.createFromPatternAndMethod(key, descriptor.value));
+  routes.add(HashRoute.createFromPatternAndProperty(key, key));
 };
 
 /**
