@@ -26,7 +26,7 @@ exports.route = descriptor => {
  * @param {Object} obj The router methods host
  */
 exports.dispatch = (obj, path) => {
-  path = path || location.hash.replace(/^#/, '')
+  path = path || location.hash
 
   routes.dispatch(obj, path)
 }

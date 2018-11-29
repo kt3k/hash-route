@@ -27,11 +27,11 @@ describe('dispatch', () => {
     location.href = '#foo'
 
     class Foo {
-      foo () {
+      '#foo' () {
         done()
       }
     }
-    route({ key: 'foo' })
+    route({ key: '#foo' })
     dispatch(new Foo())
   })
 })
