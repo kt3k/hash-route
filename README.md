@@ -44,19 +44,6 @@ With the above example, each time the hash string changed the registered routes 
 
 The express style patterns are available as route paths. This library uses [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) under the hood. See [its document](https://www.npmjs.com/package/path-to-regexp) for available patterns.
 
---
-
-Alternatively you can pass the route pattern as the argument of `route(pattern)` like the following:
-
-```js
-class Router {
-
-  @route('#projects/:project')
-  showProjectPage (params) {
-    ...
-  }
-```
-
 # Install
 
     npm install hash-route
