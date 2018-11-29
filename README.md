@@ -1,7 +1,7 @@
 # hash-route v1.2.1
 
 [![CircleCI](https://circleci.com/gh/kt3k/hash-route.svg?style=svg)](https://circleci.com/gh/kt3k/hash-route)
-[![codecov](https://codecov.io/gh/kt3k/hash-route/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/hash-route)
+[![codecov](https://codecov.io/gh/kt3k/hash-route/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/hash-route) [![Greenkeeper badge](https://badges.greenkeeper.io/kt3k/hash-route.svg)](https://greenkeeper.io/)
 
 > A router tool based on decorator and hash string.
 

@@ -39,21 +39,21 @@
     "@babel/preset-env": "^7.1.6",
     "babel-plugin-istanbul": "^5.1.0",
     "babelify": "^10.0.0",
-    "browserify": "^14.1.0",
+    "browserify": "^16.2.3",
     "chai": "^4.0.1",
-    "codecov": "^2.0.1",
-    "karma": "^1.1.1",
+    "codecov": "^3.1.0",
+    "karma": "^3.1.1",
     "karma-browserify": "^5.1.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.0",
     "karma-mocha": "^1.1.1",
-    "mocha": "^3.0.2",
-    "standard": "^10.0.0-beta.0",
+    "mocha": "^5.2.0",
+    "standard": "^12.0.1",
     "uglify-js": "^3.0.0",
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "path-to-regexp": "^1.5.3"
+    "path-to-regexp": "^2.4.0"
   },
   "standard": {
     "env": [
