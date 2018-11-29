@@ -1,6 +1,6 @@
 {
   "name": "hash-route",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A router based on hash string.",
   "main": "lib/index.js",
   "directories": {
