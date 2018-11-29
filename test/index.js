@@ -7,25 +7,6 @@ describe('route', () => {
     reset()
   })
 
-  it('registers the route pattern of the given string', done => {
-    class Foo {
-      page (param) {
-        expect(param.bar).to.equal('ham')
-
-        done()
-      }
-
-      hoge () {
-        done(new Error('hoge should not be called'))
-      }
-    }
-
-    route('hoge/:huga')(Foo.prototype, 'hoge', Object.getOwnPropertyDescriptor(Foo.prototype, 'hoge'))
-    route('foo/:bar')(Foo.prototype, 'page', Object.getOwnPropertyDescriptor(Foo.prototype, 'page'))
-
-    dispatch(new Foo(), 'foo/ham')
-  })
-
   it('registers the route pattern of the method name if the argument is not given', done => {
     class Foo {
       'foo/:bar' (param) {
@@ -35,7 +16,7 @@ describe('route', () => {
       }
     }
 
-    route(Foo.prototype, 'foo/:bar', Object.getOwnPropertyDescriptor(Foo.prototype, 'foo/:bar'))
+    route({ key: 'foo/:bar' })
 
     dispatch(new Foo(), 'foo/ham')
   })
@@ -50,8 +31,7 @@ describe('dispatch', () => {
         done()
       }
     }
-    route('#foo')(Foo.prototype, 'foo', Object.getOwnPropertyDescriptor(Foo.prototype, 'foo'))
-
+    route({ key: 'foo' })
     dispatch(new Foo())
   })
 })
