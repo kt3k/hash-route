@@ -628,34 +628,21 @@ exports.reset = function () {
 
 exports.reset();
 /**
- * @param {string} pattern The path pattern
- * @param {object} target The target of decorator
- * @param {string} key The key name
- * @param {object} descriptor The descriptor
+ * @param {Object} descriptor The element descriptor
  */
 
-exports.route = function (target, key, descriptor) {
-  if (typeof target === 'string') {
-    // This is @route(routePattern) usage
-    // So the first argument is the pattern string.
-    var pattern = target;
-    return function (target, key, descriptor) {
-      routes.add(HashRoute.createFromPatternAndProperty(pattern, key));
-    };
-  } // This is @route methodName() {} usage
-  // Uses the key as the route pattern
-
-
+exports.route = function (descriptor) {
+  var key = descriptor.key;
   routes.add(HashRoute.createFromPatternAndProperty(key, key));
 };
 /**
  * Dispatches the route.
- * @param {object} obj The router methods host
+ * @param {Object} obj The router methods host
  */
 
 
 exports.dispatch = function (obj, path) {
-  path = path || location.hash;
+  path = path || location.hash.replace(/^#/, '');
   routes.dispatch(obj, path);
 };
 
