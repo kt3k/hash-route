@@ -582,7 +582,7 @@ exports.route = function (descriptor) {
 
 
 exports.dispatch = function (obj, path) {
-  path = path || location.hash.replace(/^#/, '');
+  path = path || location.hash;
   routes.dispatch(obj, path);
 };
 
