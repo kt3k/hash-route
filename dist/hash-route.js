@@ -1,4 +1,9 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+module.exports = Array.isArray || function (arr) {
+  return Object.prototype.toString.call(arr) == '[object Array]';
+};
+
+},{}],2:[function(require,module,exports){
 var isarray = require('isarray')
 
 /**
@@ -31,14 +36,16 @@ var PATH_REGEXP = new RegExp([
 /**
  * Parse a string for the raw tokens.
  *
- * @param  {string} str
+ * @param  {string}  str
+ * @param  {Object=} options
  * @return {!Array}
  */
-function parse (str) {
+function parse (str, options) {
   var tokens = []
   var key = 0
   var index = 0
   var path = ''
+  var defaultDelimiter = options && options.delimiter || '/'
   var res
 
   while ((res = PATH_REGEXP.exec(str)) != null) {
@@ -71,8 +78,8 @@ function parse (str) {
     var partial = prefix != null && next != null && next !== prefix
     var repeat = modifier === '+' || modifier === '*'
     var optional = modifier === '?' || modifier === '*'
-    var delimiter = res[2] || '/'
-    var pattern = capture || group || (asterisk ? '.*' : '[^' + delimiter + ']+?')
+    var delimiter = res[2] || defaultDelimiter
+    var pattern = capture || group
 
     tokens.push({
       name: name || key++,
@@ -82,7 +89,7 @@ function parse (str) {
       repeat: repeat,
       partial: partial,
       asterisk: !!asterisk,
-      pattern: escapeGroup(pattern)
+      pattern: pattern ? escapeGroup(pattern) : (asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?')
     })
   }
 
@@ -103,10 +110,11 @@ function parse (str) {
  * Compile a string to a template function for the path.
  *
  * @param  {string}             str
+ * @param  {Object=}            options
  * @return {!function(Object=, Object=)}
  */
-function compile (str) {
-  return tokensToFunction(parse(str))
+function compile (str, options) {
+  return tokensToFunction(parse(str, options))
 }
 
 /**
@@ -317,34 +325,28 @@ function arrayToRegexp (path, keys, options) {
  * @return {!RegExp}
  */
 function stringToRegexp (path, keys, options) {
-  var tokens = parse(path)
-  var re = tokensToRegExp(tokens, options)
-
-  // Attach keys back to the regexp.
-  for (var i = 0; i < tokens.length; i++) {
-    if (typeof tokens[i] !== 'string') {
-      keys.push(tokens[i])
-    }
-  }
-
-  return attachKeys(re, keys)
+  return tokensToRegExp(parse(path, options), keys, options)
 }
 
 /**
  * Expose a function for taking tokens and returning a RegExp.
  *
- * @param  {!Array}  tokens
- * @param  {Object=} options
+ * @param  {!Array}          tokens
+ * @param  {(Array|Object)=} keys
+ * @param  {Object=}         options
  * @return {!RegExp}
  */
-function tokensToRegExp (tokens, options) {
+function tokensToRegExp (tokens, keys, options) {
+  if (!isarray(keys)) {
+    options = /** @type {!Object} */ (keys || options)
+    keys = []
+  }
+
   options = options || {}
 
   var strict = options.strict
   var end = options.end !== false
   var route = ''
-  var lastToken = tokens[tokens.length - 1]
-  var endsWithSlash = typeof lastToken === 'string' && /\/$/.test(lastToken)
 
   // Iterate over the tokens and create our regexp string.
   for (var i = 0; i < tokens.length; i++) {
@@ -355,6 +357,8 @@ function tokensToRegExp (tokens, options) {
     } else {
       var prefix = escapeString(token.prefix)
       var capture = '(?:' + token.pattern + ')'
+
+      keys.push(token)
 
       if (token.repeat) {
         capture += '(?:' + prefix + capture + ')*'
@@ -374,12 +378,15 @@ function tokensToRegExp (tokens, options) {
     }
   }
 
+  var delimiter = escapeString(options.delimiter || '/')
+  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter
+
   // In non-strict mode we allow a slash at the end of match. If the path to
   // match already ends with a slash, we remove it for consistency. The slash
   // is valid at the end of a path match, not in the middle. This is important
   // in non-ending mode, where "/test/" shouldn't match "/test//route".
   if (!strict) {
-    route = (endsWithSlash ? route.slice(0, -2) : route) + '(?:\\/(?=$))?'
+    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?'
   }
 
   if (end) {
@@ -387,10 +394,10 @@ function tokensToRegExp (tokens, options) {
   } else {
     // In non-ending mode, we need the capturing groups to match as much as
     // possible by using a positive lookahead to the end or next path segment.
-    route += strict && endsWithSlash ? '' : '(?=\\/|$)'
+    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)'
   }
 
-  return new RegExp('^' + route, flags(options))
+  return attachKeys(new RegExp('^' + route, flags(options)), keys)
 }
 
 /**
@@ -406,14 +413,12 @@ function tokensToRegExp (tokens, options) {
  * @return {!RegExp}
  */
 function pathToRegexp (path, keys, options) {
-  keys = keys || []
-
   if (!isarray(keys)) {
-    options = /** @type {!Object} */ (keys)
+    options = /** @type {!Object} */ (keys || options)
     keys = []
-  } else if (!options) {
-    options = {}
   }
+
+  options = options || {}
 
   if (path instanceof RegExp) {
     return regexpToRegexp(path, /** @type {!Array} */ (keys))
@@ -426,42 +431,40 @@ function pathToRegexp (path, keys, options) {
   return stringToRegexp(/** @type {string} */ (path), /** @type {!Array} */ (keys), options)
 }
 
-},{"isarray":2}],2:[function(require,module,exports){
-module.exports = Array.isArray || function (arr) {
-  return Object.prototype.toString.call(arr) == '[object Array]';
-};
-
-},{}],3:[function(require,module,exports){
+},{"isarray":1}],3:[function(require,module,exports){
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /**
  * Returns the object from the given array which sutisfies the given predicate first.
  * @param {object[]} array The array to test
  * @param {Function} predicate The predicate
  */
-var _first = function _first(array, predicate) {
+var _first = function first(array, predicate) {
   for (var i = 0; i < array.length; i++) {
     if (predicate(array[i])) {
       return array[i];
     }
   }
 };
-
 /**
  * The collection model of HashRoutes.
  */
 
-var HashRouteCollection = function () {
+
+var HashRouteCollection =
+/*#__PURE__*/
+function () {
   function HashRouteCollection() {
     _classCallCheck(this, HashRouteCollection);
 
     this.routes = [];
   }
-
   /**
    * @param {HashRoute}
    */
@@ -472,7 +475,6 @@ var HashRouteCollection = function () {
     value: function add(route) {
       this.routes.push(route);
     }
-
     /**
      * @param {object} obj The object
      * @param {string} path The path
@@ -504,30 +506,33 @@ var HashRouteCollection = function () {
 module.exports = HashRouteCollection;
 
 },{}],4:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+"use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var pathToRegexp = require('path-to-regexp');
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var pathToRegexp = require('path-to-regexp');
 /**
  * The route model.
  */
 
-var HashRoute = function () {
+
+var HashRoute =
+/*#__PURE__*/
+function () {
   /**
    * @param {string} pattern The pattern string
    * @param {RegExp} re The regexp
    * @param {object[]} keys The key informations
    */
-
   function HashRoute(_ref) {
-    var pattern = _ref.pattern;
-    var re = _ref.re;
-    var keys = _ref.keys;
-    var property = _ref.property;
+    var pattern = _ref.pattern,
+        re = _ref.re,
+        keys = _ref.keys,
+        property = _ref.property;
 
     _classCallCheck(this, HashRoute);
 
@@ -536,7 +541,6 @@ var HashRoute = function () {
     this.keys = keys;
     this.property = property;
   }
-
   /**
    * Creates the hash route object from the given pattern and property name.
    * @param {string} pattern The route pattern
@@ -545,8 +549,7 @@ var HashRoute = function () {
 
 
   _createClass(HashRoute, [{
-    key: 'match',
-
+    key: "match",
 
     /**
      * Returns the params object if the path matches the pattern and returns null otherwise.
@@ -555,7 +558,6 @@ var HashRoute = function () {
      */
     value: function match(path) {
       var result = {};
-
       var match = path.match(this.re);
 
       if (match == null) {
@@ -565,10 +567,8 @@ var HashRoute = function () {
       this.keys.forEach(function (keyInfo, i) {
         result[keyInfo.name] = match[i + 1];
       });
-
       return result;
     }
-
     /**
      * Tests if the path matches the route pattern.
      * @param {string} path The path
@@ -576,30 +576,32 @@ var HashRoute = function () {
      */
 
   }, {
-    key: 'test',
+    key: "test",
     value: function test(path) {
       return this.re.test(path);
     }
-
     /**
      * Dispatches the route with the given path.
      * @param {string} path The path
      */
 
   }, {
-    key: 'dispatch',
+    key: "dispatch",
     value: function dispatch(obj, path) {
       var params = this.match(path);
-
       return obj[this.property](params, path, this);
     }
   }], [{
-    key: 'createFromPatternAndProperty',
+    key: "createFromPatternAndProperty",
     value: function createFromPatternAndProperty(pattern, property) {
       var keys = [];
       var re = pathToRegexp(pattern, keys);
-
-      return new HashRoute({ pattern: pattern, re: re, keys: keys, property: property });
+      return new HashRoute({
+        pattern: pattern,
+        re: re,
+        keys: keys,
+        property: property
+      });
     }
   }]);
 
@@ -608,60 +610,52 @@ var HashRoute = function () {
 
 module.exports = HashRoute;
 
-},{"path-to-regexp":1}],5:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+},{"path-to-regexp":2}],5:[function(require,module,exports){
+"use strict";
 
 var HashRoute = require('./hash-route');
+
 var HashRouteCollection = require('./hash-route-collection');
 
-var routes = void 0;
-
+var routes;
 /**
  * Resets the route info.
  */
+
 exports.reset = function () {
   routes = new HashRouteCollection();
 };
 
 exports.reset();
-
 /**
  * @param {string} pattern The path pattern
  * @param {object} target The target of decorator
  * @param {string} key The key name
  * @param {object} descriptor The descriptor
  */
+
 exports.route = function (target, key, descriptor) {
   if (typeof target === 'string') {
-    var _ret = function () {
-      // This is @route(routePattern) usage
-      // So the first argument is the pattern string.
-      var pattern = target;
-
-      return {
-        v: function v(target, key, descriptor) {
-          routes.add(HashRoute.createFromPatternAndProperty(pattern, key));
-        }
-      };
-    }();
-
-    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-  }
-
-  // This is @route methodName() {} usage
+    // This is @route(routePattern) usage
+    // So the first argument is the pattern string.
+    var pattern = target;
+    return function (target, key, descriptor) {
+      routes.add(HashRoute.createFromPatternAndProperty(pattern, key));
+    };
+  } // This is @route methodName() {} usage
   // Uses the key as the route pattern
+
+
   routes.add(HashRoute.createFromPatternAndProperty(key, key));
 };
-
 /**
  * Dispatches the route.
  * @param {object} obj The router methods host
  */
+
+
 exports.dispatch = function (obj, path) {
   path = path || location.hash;
-
   routes.dispatch(obj, path);
 };
 
