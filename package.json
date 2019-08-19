@@ -48,7 +48,7 @@
     "karma-coverage": "^1.1.0",
     "karma-mocha": "^1.1.1",
     "mocha": "^6.0.0",
-    "standard": "^13.0.1",
+    "standard": "^14.0.0",
     "uglify-js": "^3.0.0",
     "watchify": "^3.7.0"
   },
