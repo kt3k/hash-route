@@ -37,7 +37,7 @@
     "@babel/cli": "^7.6.3",
     "@babel/core": "^7.6.3",
     "@babel/preset-env": "^7.6.3",
-    "babel-plugin-istanbul": "^5.1.0",
+    "babel-plugin-istanbul": "^6.0.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "chai": "^4.0.1",
